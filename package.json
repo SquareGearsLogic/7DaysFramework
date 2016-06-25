@@ -1,0 +1,20 @@
+{
+  "name": "rtg",
+  "version": "1.0.0",
+  "description": "rtg",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ApelsetZ",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "multer": "^1.1.0",
+    "node-rsa": "^0.3.3",
+    "node-uuid": "^1.4.7",
+    "socket.io": "^1.4.6"
+  }
+}

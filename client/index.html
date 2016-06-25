@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RTG</title>
+	
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="node-rsa-bundle.js"></script>
+	
+</head>
+<body>
+	<canvas id="canvas"> </canvas>	
+	<pre>
+<span id=ans></span>
+	</pre>
+</body>
+
+	<script type="text/javascript">
+		var serverRsa = new NodeRSA();
+		var clientRsa = new NodeRSA({b: 512});
+		var clientPKData = clientRsa.exportKey('pkcs8-public-pem');
+		document.getElementById('ans').innerHTML = clientPKData;
+		
+		var socket = io.connect('/');
+		var loginStep = 0;
+		if (socket){
+			socket.on('login', function( data ) {
+				if (loginStep == 0){
+					serverRsa.importKey(clientRsa.decrypt(data), 'pkcs8-public-pem');
+					var encrypted = serverRsa.encrypt("SomeUser", 'base64');
+					socket.emit('login', encrypted);
+					loginStep++;
+					return;
+				} else if (loginStep == 1){
+					data = clientRsa.decrypt(data);
+					console.log("Server says [" + data + "]");
+					loginStep++;
+					return;
+				} else if (loginStep > 1){
+					console.log("unexpected data [" + data + "]");
+					return;
+				}
+			});
+		}
+		socket.emit('login', clientPKData);
+	</script>
+	
+</html>
+
