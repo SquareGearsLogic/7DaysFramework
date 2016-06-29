@@ -5,8 +5,17 @@ node_js:
 install:
   - npm install
   - export PORT=8080
+  - npm install socket.io-client
+  
+services:
+  - mysql
+  
+before_script:
+  - mysql -e 'create database c9;'
+  - mysql -u root -h localhost c9 < dump_mysql.sql 
   
 script:
   - mocha test/test_system_properties.js
   - mocha test/test_socket_pool.js
   - mocha test/test_socket_server.js
+  - mocha test/test_database_connector.js

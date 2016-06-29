@@ -64,7 +64,7 @@ describe('Class SocketServer', function() {
         });
         socket1.on('disconnect', function() {
             console.log('[TEST] client::disconnected');
-        })
+        });
         
         socket2 = moIoClient.connect('http://localhost:' + process.env.PORT, {
             'reconnection delay' : 0
@@ -77,7 +77,24 @@ describe('Class SocketServer', function() {
         });
         socket2.on('disconnect', function() {
             console.log('[TEST] client::disconnected');
-        })
+        });
     });
-    
+    it('temp test', function(done) {
+        socket1 = moIoClient.connect('http://localhost:' + process.env.PORT, {
+            'reconnection delay' : 0
+            , 'reopen delay' : 0
+            , 'force new connection' : true
+        });
+        socket1.on('connect', function() {
+            console.log('[TEST] client::connect !!!!!!!!!!' + socket1.id);
+            socket1.emit('login', 'hey!');
+        });
+        socket1.on('disconnect', function() {
+            console.log('[TEST] client::disconnected');
+        });
+        socket1.on('login', function() {
+            console.log('[TEST] client::connect >>>>>>>>>>>>');
+        });
+        done();
+    });
 });
