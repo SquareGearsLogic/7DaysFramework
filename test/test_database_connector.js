@@ -89,7 +89,6 @@ describe('Class DatabaseConnector', function() {
                         done(err);
                     });
             });
-            
         });
         
     });
