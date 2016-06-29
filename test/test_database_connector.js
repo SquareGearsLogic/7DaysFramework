@@ -1,5 +1,4 @@
-var moMocha = require("mocha"),
-    moChai = require("chai"),
+var moChai = require("chai"),
     expect = moChai.expect,
     assert = moChai.assert,
     moFs = require('fs'),
@@ -26,6 +25,8 @@ expect(config.database.type).to.not.equal(null);
 describe('Class DatabaseConnector', function() {
     describe('General connection tests based on config/config.ini', function() {
         it('Connects to database', function(done) {
+            // Add line below to each test if your Database is too slow for any reason.
+            //this.timeout(5000);
             var result = moDbConnector.create(
                 config.database.user, 
                 config.database.password, 

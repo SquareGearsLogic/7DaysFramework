@@ -1,5 +1,4 @@
-var moMocha = require("mocha"),
-    moChai = require("chai"),
+var moChai = require("chai"),
     expect = moChai.expect,
     assert = moChai.assert,
     moFs = require('fs'),

@@ -2,3 +2,4 @@ node_modules/
 .c9/
 .git/
 config/config.ini
+log/*
