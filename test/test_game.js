@@ -7,7 +7,7 @@ describe('Class Game', function() {
     var game = null;
     beforeEach(function(done) {
         console.log('\n[TEST] [Before]  starts...');
-        game = moMain.run(process.cwd() + '/config/config.ini');
+        game = moMain.create(process.cwd() + '/config/config.ini');
         expect(game).to.not.equal(null);
         game.run();
         setTimeout(function () {
