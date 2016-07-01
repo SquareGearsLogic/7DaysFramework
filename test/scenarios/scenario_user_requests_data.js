@@ -12,8 +12,9 @@ var clientRsa = new moNodeRSA({
 });
 var clientPubKeyData = clientRsa.exportKey('pkcs8-public-pem');
 var loginStep = 0;
+var dataStep = 0;
 
-vows.describe('scenario_enter_wrong_password').addBatch({
+vows.describe('scenario_user_requests_data').addBatch({
     'The `Game`': {
         topic: function() {
             game = moGame.create(process.cwd() + '/config/config.ini');
@@ -39,7 +40,7 @@ vows.describe('scenario_enter_wrong_password').addBatch({
                         this.callback();
                         socket1.emit('logon', clientPubKeyData);
                     },
-                    '\nand logs in with different credentials several times...': {
+                    ', logs in': {
                         topic: function() {
                             var that = this;
                             socket1.on('logon', function(data) {
@@ -47,34 +48,42 @@ vows.describe('scenario_enter_wrong_password').addBatch({
                                     loginStep++;
                                     assert.isString(data);
                                     serverRsa.importKey(clientRsa.decrypt(data), 'pkcs8-public-pem');
-                                    var encrypted = serverRsa.encrypt("0dmin:admin", 'base64');
+                                    var encrypted = serverRsa.encrypt("admin:admin", 'base64');
                                     socket1.emit('logon', encrypted);
                                 }
                                 else if (loginStep == 1) {
                                     loginStep++;
                                     data = clientRsa.decrypt(data).toString();
-                                    assert.equal(data, 'fail');
-                                    var encrypted = serverRsa.encrypt("admin:0dmin", 'base64');
-                                    socket1.emit('logon', encrypted);
-                                }
-                                else if (loginStep == 2) {
-                                    loginStep++;
-                                    data = clientRsa.decrypt(data).toString();
-                                    assert.equal(data, 'fail');
-                                    var encrypted = serverRsa.encrypt("admin:admin", 'base64');
-                                    socket1.emit('logon', encrypted);
-                                }
-                                else if (loginStep == 3) {
-                                    data = clientRsa.decrypt(data).toString();
-                                    that.callback(null, data);
+                                    assert.equal(data, 'welcome');
+                                    that.callback();
                                 }
                             });
                         },
-                        'Authentication works only when client uses correct credentials': function(data) {
-                            assert.equal(data, 'welcome');
-                            socket1.removeAllListeners();
-                            game.stop();
-                            game = null;
+                        'and asks for data personally and broadcasted.': {
+                            topic: function() {
+                                var encrypted = serverRsa.encrypt("I Wanna Data!", 'base64');
+                                socket1.emit('data', encrypted);
+                                var pool = '';
+                                var that = this;
+                                socket1.on('data', function(data) {
+                                    data = clientRsa.decrypt(data).toString();
+                                    if (dataStep == 0){
+                                        dataStep++;
+                                        pool += data;
+                                        var encrypted = serverRsa.encrypt("[force broadcast]", 'base64');
+                                        socket1.emit('data', encrypted);
+                                    }else if (dataStep == 1) {
+                                        pool += data;
+                                        that.callback(null, pool);
+                                    }
+                                });
+                            },
+                            'Server should reply on data request.': function(data) {
+                                assert.equal(data, '[Here is some data, bro!][hey, everyone!]');
+                                socket1.removeAllListeners();
+                                game.stop();
+                                game = null;
+                            }
                         }
                     }
                 }

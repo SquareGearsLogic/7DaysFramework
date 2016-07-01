@@ -3,7 +3,7 @@ var moChai          = require("chai"),
     assert          = moChai.assert,
     moIoClient      = require('socket.io-client'),
     moNodeRSA       = require('node-rsa'),
-    moGame          = require("../lib/game.js");
+    moGame          = require("../lib/game/game.js");
 
 describe('Class Game', function() {
     var game = null;
