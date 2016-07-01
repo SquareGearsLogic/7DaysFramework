@@ -2,7 +2,6 @@ var moChai          = require("chai"),
     expect          = moChai.expect,
     assert          = moChai.assert,
     moIoClient      = require('socket.io-client'),
-    moNodeRSA       = require('node-rsa'),
     moSocketServer  = require('../lib/sockets/socket_server.js');
 
 var LOG = require('winston');
@@ -12,14 +11,12 @@ describe('Class SocketServer', function() {
     var server = null;
     var socket1 = null;
     var socket2 = null;
-    var serverRsa = new moNodeRSA();
-    var clientRsa = new moNodeRSA({b: 512});
-    var clientPubKeyData = clientRsa.exportKey('pkcs8-public-pem');
-    
+
     beforeEach(function(done) {
         console.log('\n[TEST] [Before] starts...');
         testCondition = 0;
-        server = moSocketServer.create(process.env.PORT, LOG, null);
+        
+        server = moSocketServer.create(process.env.PORT, LOG, function(){}, function(){}, function(){});
         server.run();
         console.log('[TEST] [Before] is done.');
         done();

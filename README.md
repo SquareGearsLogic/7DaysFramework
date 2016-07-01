@@ -9,6 +9,10 @@ Setup
 -----------
 Dependencies installation:
 ```bash
+npm install --production
+```
+For test you will need extra dependencies:
+```bash
 npm install
 ```
 

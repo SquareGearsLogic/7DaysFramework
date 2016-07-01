@@ -1,14 +1,13 @@
 var moChai          = require("chai"),
     expect          = moChai.expect,
     assert          = moChai.assert,
-    moSocketBean    = require("../lib/sockets/socket_bean.js"),
     moSocketPool    = require("../lib/sockets/socket_pool.js");
 
 var LOG = require('winston');
 
 describe('Class SocketPool', function() {
     it('Should be able add and return socket object by id', function(done) {
-        var pool1 = moSocketPool.create(LOG);
+        var pool1 = moSocketPool.create(LOG, function(){}, function(){}, function(){});
         var socket1 = {id: '1', disconnect: function(){}, on: function(){}};
         var id1 = pool1.put(socket1);
         
@@ -16,12 +15,14 @@ describe('Class SocketPool', function() {
         var socket2 = {id: '2', disconnect: function(){}, on: function(){}};
         var id2 = pool2.put(socket2);
         
-        expect(pool1.get(id1)).to.equal(socket1);
+        expect(pool1.get(id1).socket).to.equal(socket1);
         expect(pool1.get(id2)).to.equal(null);
-        expect(pool2.get(id2)).to.equal(socket2);
+        expect(pool2.get(id2).socket).to.equal(socket2);
         expect(pool2.get(id1)).to.equal(null);
+        
         done();
     });
+    
     it('Should return null if id is missing', function(done) {
         var pool = moSocketPool.create(LOG);
         var socket = {disconnect: function(){}, on: function(){}};
@@ -33,7 +34,7 @@ describe('Class SocketPool', function() {
         var pool = moSocketPool.create(LOG);
         var socket = {disconnect: function(){}, on: function(){}};
         var id = pool.put(socket);
-        expect(pool.get(id)).to.equal(socket);
+        expect(pool.get(id).socket).to.equal(socket);
         pool.remove(id);
         expect(pool.get(id)).to.equal(null);
         pool.remove(id);
