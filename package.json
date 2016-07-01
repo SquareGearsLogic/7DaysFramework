@@ -8,7 +8,7 @@
     "url": "https://github.com/SquareGearsLogic/RealTimeGame.git"
   },
   "scripts": {
-    "test": "mocha; mocha test/scenarios"
+    "test": "mocha; vows -v --spec test/scenarios/*"
   },
   "author": "SquareGearsLogic",
   "license": "ISC",
