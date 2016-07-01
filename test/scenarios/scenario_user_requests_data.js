@@ -7,12 +7,10 @@ var vows = require('vows'),
 var game = null;
 var socket1 = null;
 var serverRsa = new moNodeRSA();
-var clientRsa = new moNodeRSA({
-    b: 512
-});
+var clientRsa = new moNodeRSA({ b: 512 });
 var clientPubKeyData = clientRsa.exportKey('pkcs8-public-pem');
 var loginStep = 0;
-var dataStep = 0;
+var isGetingBroadcasts = false;
 
 vows.describe('scenario_user_requests_data').addBatch({
     'The `Game`': {
@@ -59,27 +57,27 @@ vows.describe('scenario_user_requests_data').addBatch({
                                 }
                             });
                         },
-                        'and asks for data personally and broadcasted.': {
+                        'receives broadcasted data automatically and personal data by request.': {
                             topic: function() {
-                                var encrypted = serverRsa.encrypt("I Wanna Data!", 'base64');
-                                socket1.emit('data', encrypted);
-                                var pool = '';
                                 var that = this;
                                 socket1.on('data', function(data) {
                                     data = clientRsa.decrypt(data).toString();
-                                    if (dataStep == 0){
-                                        dataStep++;
-                                        pool += data;
-                                        var encrypted = serverRsa.encrypt("[force broadcast]", 'base64');
-                                        socket1.emit('data', encrypted);
-                                    }else if (dataStep == 1) {
-                                        pool += data;
-                                        that.callback(null, pool);
+                                    console.log('===>got broadcast' + data)
+                                    var dataObj = JSON.parse(data);
+                                    if (dataObj.broadcast){
+                                        if (isGetingBroadcasts == false){
+                                            var encrypted = serverRsa.encrypt("I wanna some personal data!", 'base64');
+                                            socket1.emit('data', encrypted);
+                                            isGetingBroadcasts = true;
+                                        }
+                                    }
+                                    if (dataObj.personal) {
+                                        that.callback(null, dataObj.personal);
                                     }
                                 });
                             },
-                            'Server should reply on data request.': function(data) {
-                                assert.equal(data, '[Here is some data, bro!][hey, everyone!]');
+                            'Server should reply on data request.': function(err, data) {
+                                assert.equal(data, 'Here is some data, bro!');
                                 socket1.removeAllListeners();
                                 game.stop();
                                 game = null;

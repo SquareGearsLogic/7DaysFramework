@@ -1,15 +1,13 @@
-var vows = require('vows'),
-    assert = require('assert'),
-    moIoClient = require('socket.io-client'),
-    moNodeRSA = require('node-rsa'),
-    moGame = require("../../lib/game/game.js");
+var vows        = require('vows'),
+    assert      = require('assert'),
+    moIoClient  = require('socket.io-client'),
+    moNodeRSA   = require('node-rsa'),
+    moGame      = require("../../lib/game/game.js");
 
 var game = null;
 var socket1 = null;
 var serverRsa = new moNodeRSA();
-var clientRsa = new moNodeRSA({
-    b: 512
-});
+var clientRsa = new moNodeRSA({ b: 512 });
 var clientPubKeyData = clientRsa.exportKey('pkcs8-public-pem');
 var loginStep = 0;
 
@@ -48,24 +46,23 @@ vows.describe('scenario_user_requests_data_without_login').addBatch({
                                 that.callback();
                             });
                         },
-                    'and asks for data without finishing Logon handshake.': {
-                        topic: function() {
-                            var encrypted = serverRsa.encrypt("I Wanna Data!", 'base64');
-                            socket1.emit('data', encrypted);
-                            var that = this;
-                            socket1.on('data', function(data) {
-                                data = clientRsa.decrypt(data).toString();
-                                that.callback(null, data);
-                            });
-                        },
-                        'Server should reply with "fail" for unauthorized used.': function(data) {
-                            console.log('YEY!')
-                            assert.equal(data, 'fail');
-                            socket1.removeAllListeners();
-                            game.stop();
-                            game = null;
+                        'and asks for data without finishing Logon handshake.': {
+                            topic: function() {
+                                var encrypted = serverRsa.encrypt("I Wanna Data!", 'base64');
+                                socket1.emit('data', encrypted);
+                                var that = this;
+                                socket1.on('data', function(data) {
+                                    data = clientRsa.decrypt(data).toString();
+                                    that.callback(null, data);
+                                });
+                            },
+                            'Server should reply with "fail" for unauthorized used.': function(data) {
+                                assert.equal(data, 'fail');
+                                socket1.removeAllListeners();
+                                game.stop();
+                                game = null;
+                            }
                         }
-                    }
                     }
                 }
             }

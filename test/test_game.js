@@ -91,7 +91,7 @@ describe('Class Game', function() {
             }
         });
         socket1.on('data', function() {
-            console.log('[TEST] client::data!!!!!!!!! (' + socket1.id + ')');
+            console.log('[TEST] client::data (' + socket1.id + ')');
         });
     });
     

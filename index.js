@@ -1,4 +1,10 @@
 var
+    moGame = require('./lib/game/game.js');
+
+var game = moGame.create(process.cwd() + '/config/config.ini');
+game.run();
+/**
+var
     moHttp = require('http'),
     moPath = require('path'),
 
@@ -71,3 +77,4 @@ server.listen(process.env.PORT || port, process.env.IP || "0.0.0.0", function() 
 var hash = require('hash.js')
 var res = hash.sha256().update('abc').digest('hex');
 console.log(res);
+**/

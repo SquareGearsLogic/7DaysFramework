@@ -61,7 +61,7 @@ vows.describe('scenario_enter_wrong_password').addBatch({
                                     loginStep++;
                                     data = clientRsa.decrypt(data).toString();
                                     assert.equal(data, 'fail');
-                                    var encrypted = serverRsa.encrypt("admin:admin", 'base64');
+                                    var encrypted = serverRsa.encrypt("user:user", 'base64');
                                     socket1.emit('logon', encrypted);
                                 }
                                 else if (loginStep == 3) {

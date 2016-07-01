@@ -1,48 +1,118 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>RTG</title>
-	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="node-rsa-bundle.js"></script>
-	
-</head>
-<body>
-	<canvas id="canvas"> </canvas>	
-	<pre>
-<span id=ans></span>
-	</pre>
-</body>
 
-	<script type="text/javascript">
+</head>
+
+<body>
+<div class="panel panel-default">
+	<div id="game" class="panel-body">
+		<div class="container" content="width=10, initial-scale=10">
+		<div class="form-group">
+			<label for="usr">Email address:</label>
+			<input type="usr" class="form-control" id="usr">
+		</div>
+		<div class="form-group">
+			<label for="pwd">Password:</label>
+			<input type="password" class="form-control" id="pwd">
+		</div>
+		<button id="submit" class="btn btn-default">Submit</button>
+		</div>
+	</div>
+	<div id="log" class="panel-footer">Hi there!</div>
+</div>
+</body>
+<script>
+	$(document).ready(function() {
+		$('#submit').click(function() {
+			var encrypted = serverRsa.encrypt($("#usr").val() + ":" + $("#pwd").val(), 'base64');
+			socket.emit('logon', encrypted);
+			return false;
+		});
+		var isLoggedIn = false;
+		var wasPressed = false;
+		$(document).keydown(function(e){
+			if (isLoggedIn == false)
+				return;
+			if( e.which === 87 && !wasPressed){
+				var encrypted = serverRsa.encrypt('up', 'base64');
+				socket.emit('data', encrypted);
+				wasPressed = true;
+			}
+			if( e.which === 83 && !wasPressed){
+				var encrypted = serverRsa.encrypt('down', 'base64');
+				socket.emit('data', encrypted);
+				wasPressed = true;
+			}
+			if( e.which === 65 && !wasPressed){
+				var encrypted = serverRsa.encrypt('left', 'base64');
+				socket.emit('data', encrypted);
+				wasPressed = true;
+			}
+			if( e.which === 68 && !wasPressed){
+				var encrypted = serverRsa.encrypt('right', 'base64');
+				socket.emit('data', encrypted);
+				wasPressed = true;
+			}
+		}); 
+		$(document).keyup(function(e){
+			if (wasPressed){
+				var encrypted = serverRsa.encrypt('stop', 'base64');
+				socket.emit('data', encrypted);
+				wasPressed = false;
+			}
+		}); 
+
 		var serverRsa = new NodeRSA();
-		var clientRsa = new NodeRSA({b: 512});
+		var clientRsa = new NodeRSA({
+			b: 512
+		});
 		var clientPKData = clientRsa.exportKey('pkcs8-public-pem');
-		document.getElementById('ans').innerHTML = clientPKData;
-		
+		$('#log').html(clientPKData);
+		console.log("hey!");
 		var socket = io.connect('/');
-		var loginStep = 0;
-		if (socket){
-			socket.on('login', function( data ) {
-				if (loginStep == 0){
+		var isConnected = false;
+		if (socket) {
+			socket.on('logon', function(data) {
+				if (isConnected == false) {
 					serverRsa.importKey(clientRsa.decrypt(data), 'pkcs8-public-pem');
-					var encrypted = serverRsa.encrypt("SomeUser", 'base64');
-					socket.emit('login', encrypted);
-					loginStep++;
-					return;
-				} else if (loginStep == 1){
+					isConnected = true;
+				}
+				else if (isConnected == true) {
 					data = clientRsa.decrypt(data);
-					console.log("Server says [" + data + "]");
-					loginStep++;
+					$('#log').html("Server says [" + data + "]");
+					if (data == 'welcome'){
+						$('#game').html('<canvas id="canvas" width="200" height="100" style="border:1px solid #000000;"> </canvas> ');
+						isLoggedIn = true;
+					}
+				}
+			});
+			socket.on('data', function(data) {
+				var replyObj = JSON.parse(clientRsa.decrypt(data))
+				var users = replyObj.broadcast;
+				var c = document.getElementById("canvas");
+				if (!c || !users)
 					return;
-				} else if (loginStep > 1){
-					console.log("unexpected data [" + data + "]");
-					return;
+				var ctx = c.getContext("2d");
+				ctx.clearRect(0, 0, c.width, c.height);
+				for (var i in users){
+					ctx.fillStyle = "#FF0000";
+					ctx.fillRect(users[i].x,users[i].y,20,20);
 				}
 			});
 		}
-		socket.emit('login', clientPKData);
-	</script>
-	
-</html>
+		socket.emit('logon', clientPKData);
+	})
+</script>
 
+</html>

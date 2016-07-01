@@ -1,9 +1,10 @@
-RealTimeGame
+7Days Фреймворк
 ======
 [![Read in English](http://www.printableworldflags.com/icon-flags/24/United%20Kingdom.png)](https://github.com/SquareGearsLogic/RealTimeGame) [![Read in Russian](http://www.printableworldflags.com/icon-flags/24/Russian%20Federation.png)](https://github.com/SquareGearsLogic/RealTimeGame/blob/master/README.ru.md)  
 ![](https://travis-ci.org/SquareGearsLogic/RealTimeGame.svg?branch=master)
 
-Node.js / HTML5 фреймворк для игр реального времени.
+Создай свою Node.js / HTML5 многопользовательскую игру реального времени 
+с преферансом и дамами!
 
 Сборка
 -----------
@@ -21,6 +22,12 @@ npm install
 ```bash
 node index.js
 ```
+
+В дампе базы данных добавлены два пользователя admin:admin и user:user.
+
+Документация
+-----------
+Отсутствует.
 
 Лицензия
 -----------
